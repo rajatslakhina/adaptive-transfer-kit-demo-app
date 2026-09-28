@@ -30,8 +30,8 @@ That is the argument, and it is not "adaptive is always faster". It is that the 
 
 | section | what it is |
 |---|---|
-| **Two strategy cards** | p50 / p95 / completion / peak in-flight / requests shed / final limit for the fixed limiter and the gradient limiter, on byte-identical conditions |
-| **Latency bars** | each strategy's p95 as a fraction of the worse of the two |
+| **Two strategy cards** | p50 / p95 / p99, chunks completed, requests shed, and the limit each strategy ended on — for the fixed limiter and the gradient limiter, on byte-identical conditions |
+| **Latency bars** | each strategy's p95 as a fraction of the worse of the two — and full width for a strategy that did not finish, because a client that sheds its way to 44 of 300 chunks has a *small* p95 among the survivors, and the loudest visual has to agree with the verdict |
 | **The verdict line** | the p95 ratio, and the throughput the adaptive controller gives up to get it |
 | **Degraded-capacity slider** | how hard the server collapses at 200 ms; both strategies re-run on every change |
 | **Invariant panel** | the library's own `LimiterInvariantCheck` run live — limit before congestion → during → recovered → after a drop |
@@ -108,7 +108,7 @@ Kept deliberately blunt, because "it builds" and "it ran" are different facts an
 
 **What was verified:**
 
-- The library's own suite: `swift build -Xswiftc -warnings-as-errors` on a cold tree — clean, zero warnings — and `swift test` — **113 tests, 0 failures**, Swift 6.0.3 on Linux.
+- The library's own suite: `swift build -Xswiftc -warnings-as-errors` on a cold tree — clean, zero warnings — and `swift test` — **118 tests, 0 failures**, Swift 6.0.3 on Linux.
 - `Demo.xcodeproj/project.pbxproj` was checked mechanically before it was committed: brace and paren balance with comments and quoted strings stripped, and every one of the 23 object IDs referenced in the file is also defined in it, with no dangling references. The shared scheme's `BlueprintIdentifier` was cross-checked against the `PBXNativeTarget` section specifically — the first attempt pointed at the `PBXGroup` that shares the target's name, which would have produced a scheme that does not build.
 - CI ([Actions](https://github.com/rajatslakhina/adaptive-transfer-kit-demo-app/actions)) runs `xcodebuild -resolvePackageDependencies` and then `xcodebuild build -scheme Demo -destination 'generic/platform=iOS Simulator'` on `macos-15`, and prints the resolved `Package.resolved`. That proves the remote package genuinely resolves from GitHub at the pinned version and that the app compiles against it.
 
